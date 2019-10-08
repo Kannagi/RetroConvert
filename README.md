@@ -24,3 +24,8 @@ NES palettes are not working properly yet
 
 ## Option MD
 - -h + arg , arg (0-3) (horizontal sprite (arg+1)*8 pixels)
+
+## Option Nes
+- -customMesen (use palette Mesen)
+- -customBin (custom palette Nes , read "nes_custom.pal")
+- -customPal (custom palette Nes , read "nes_custom.png")
