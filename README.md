@@ -3,8 +3,6 @@ Converter png/bmp/pcx to Nes/SNES/Master System/Mega Drive/PC Engine/NeoGeo
 
 The Neo Geo is not yet implemented
 
-NES palettes are not working properly yet
-
 ## Command
 - RetroConvert -sfc myimage.png
 
