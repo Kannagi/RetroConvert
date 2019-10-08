@@ -8,18 +8,18 @@ Nes palettes are not working properly yet
 - RetroConvert -sfc myimage.png
 
 ## Option target cible
-- nes , -sms , -pce , -sfc , -md , -ng
+- -nes , -sms , -pce , -sfc , -md , -ng
 
 ## Option palette
-- palette (output palette only)
-- paletteall (output palette image)
-- loadpalette + arg , (load palette extern) , default load "palette.png"
+- -palette (output palette only)
+- -paletteall (output palette image)
+- -loadpalette + arg , (load palette extern) , default load "palette.png"
 
 ## Option sfc
-- 2bpp,-4bpp ,-8bpp,-mode7,-map
+- -2bpp,-4bpp ,-8bpp,-mode7,-map
 
 ## Option pce
-- bg,-spr
+- -bg,-spr
 
-# Option MD
-- h + arg , arg (0-3) (horizontal sprite (arg+1)*8 pixels)
+## Option MD
+- -h + arg , arg (0-3) (horizontal sprite (arg+1)*8 pixels)
