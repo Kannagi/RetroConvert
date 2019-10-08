@@ -1,23 +1,105 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
 #include "retro.h"
+#include "fceux.c"
+#include "mesen.c"
+
+void RGBtoCIELAB(int R,int G,int B,double *CIELAB)
+{
+	//http://www.easyrgb.com/en/math.php#text2
+	double X,Y,Z;
+	double var_R,var_G,var_B;
+	double var_X,var_Y,var_Z;
+
+	//RGB -> XYZ
+	var_R = ( (float)R / 255.0 );
+	var_G = ( (float)G / 255.0 );
+	var_B = ( (float)B / 255.0 );
+
+	if ( var_R > 0.04045 ) var_R = pow ( ( ( var_R + 0.055 ) / 1.055 ) , 2.4);
+	else                   var_R = var_R / 12.92;
+	if ( var_G > 0.04045 ) var_G = pow ( ( ( var_G + 0.055 ) / 1.055 ) , 2.4);
+	else                   var_G = var_G / 12.92;
+	if ( var_B > 0.04045 ) var_B = pow ( ( ( var_B + 0.055 ) / 1.055 ) , 2.4);
+	else                   var_B = var_B / 12.92;
+
+	var_R = var_R * 100;
+	var_G = var_G * 100;
+	var_B = var_B * 100;
+
+	X = (var_R * 0.4124) + (var_G * 0.3576) + (var_B * 0.1805);
+	Y = (var_R * 0.2126) + (var_G * 0.7152) + (var_B * 0.0722);
+	Z = (var_R * 0.0193) + (var_G * 0.1192) + (var_B * 0.9505);
+
+
+	//XYZ -> CIELAB
+
+	var_X = X / 95.047;  // Reference-X
+	var_Y = Y / 100.0;   // Reference-Y
+	var_Z = Z / 108.883; // Reference-Z
+
+	if ( var_X > 0.008856 ) var_X = pow ( var_X , ( 1.0/3.0 ) );
+	else                    var_X = ( 7.787 * var_X ) + ( 16.0 / 116.0 );
+	if ( var_Y > 0.008856 ) var_Y = pow ( var_Y , ( 1.0/3.0 ) );
+	else                    var_Y = ( 7.787 * var_Y ) + ( 16.0 / 116.0 );
+	if ( var_Z > 0.008856 ) var_Z = pow ( var_Z , ( 1.0/3.0 ) );
+	else                    var_Z = ( 7.787 * var_Z ) + ( 16.0 / 116.0 );
+
+	CIELAB[0] = ( 116.0 * var_Y ) - 16.0;
+	CIELAB[1] = 500.0 * ( var_X - var_Y );
+	CIELAB[2] = 200.0 * ( var_Y - var_Z );
+
+}
+
+unsigned char nes_pal(unsigned char *palette,unsigned char *data)
+{
+	unsigned char color = 0x0F;
+	int r,g,b,i;
+
+	double CIELAB1[3],CIELAB2[3];
+	double L,A,B,deltaE,deltaEmin = 10000.0f;
+
+	r = palette[2];
+	g = palette[1];
+	b = palette[0];
+
+	RGBtoCIELAB(r,g,b,CIELAB1);
+	for(i = 0;i < 192;i += 3)
+	{
+		RGBtoCIELAB(data[i+0],data[i+1],data[i+2],CIELAB2);
+		L =  (CIELAB2[0]-CIELAB1[0]);
+		A =  (CIELAB2[1]-CIELAB1[1]);
+		B =  (CIELAB2[2]-CIELAB1[2]);
+
+		deltaE = sqrt((L*L)+(A*A)+(B*B));
+		if(deltaE < deltaEmin)
+		{
+			deltaEmin = deltaE;
+			color = i/3;
+		}
+	}
+
+
+	return color;
+}
 
 int nes_write_pal(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolor,int mode)
 {
     int i,n;
     int psize = 0;
-    unsigned char color,color2;
-    int r,g,b,chrome;
+    unsigned char color;
+
 
     int size = image->w*image->h*image->format->BytesPerPixel;
     unsigned char *pixel = image->pixels;
 
-    if(mode == 3)
+    if( (mode&0x0F) == 3 )
     {
         n = 0;
         for(i = 0;i < size;i += image->format->BytesPerPixel)
@@ -31,147 +113,61 @@ int nes_write_pal(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolo
         ncolor = n/3;
     }
 
+    unsigned char *data = fceux_pal_data;
+    unsigned char data_tmp[192];
+
+	if( (mode&0xF0) == 0x20 )
+	{
+		SDL_Surface *image2,*copy;
+		image2 = IMG_Load("nes_custom.png");
+		if(image2 == NULL)
+		{
+			printf("Palette is not valide\n");
+			return 0;
+		}
+
+		copy = SDL_CreateRGBSurface(0,image2->w,image2->h,24,0,0,0,0);
+		SDL_BlitSurface(image2,NULL,copy,NULL);
+		pixel = copy->pixels;
+		for(i = 0;i < 192;i+=3)
+		{
+			data_tmp[i+0] = pixel[i+2];
+            data_tmp[i+1] = pixel[i+1];
+            data_tmp[i+2] = pixel[i+0];
+		}
+		data = data_tmp;
+		SDL_FreeSurface(copy);
+		SDL_FreeSurface(image2);
+	}
+
+	if( (mode&0xF0) == 0x30 )
+	{
+		for(i = 0;i < 192;i+=3)
+		{
+			data_tmp[i+0] = fgetc(file);
+            data_tmp[i+1] = fgetc(file);
+            data_tmp[i+2] = fgetc(file);
+		}
+		data = data_tmp;
+		fclose(file);
+	}
+
+	if( (mode&0xF0) == 0x40 )
+	{
+		for(i = 0;i < 192;i+=3)
+		{
+			data_tmp[i+0] = mesen_pal_data[i+2];
+            data_tmp[i+1] = mesen_pal_data[i+1];
+            data_tmp[i+2] = mesen_pal_data[i+0];
+		}
+		data = data_tmp;
+	}
+
     for(i = 0;i < ncolor;i++)
 	{
 		n = i*3;
 
-		r = palette[n+2]/63;
-		g = palette[n+1]/63;
-		b = palette[n+0]/63;
-
-		color = 0x0F;
-		color2 = 1;
-		chrome = 0;
-
-		//printf("%d %d %d :",r,g,b);
-
-		if(b >= 2)
-			chrome |= 1;
-
-		if(r >= 2)
-			chrome |= 2;
-
-		if(g >= 2)
-			chrome |= 4;
-
-		//printf("%d %d %d\n",r,g,b);
-		if( (r == g) &&  (g == b) )
-		{
-			chrome = 0;
-			if(r == 1)
-			{
-				color = 0x0D;
-				color2 = 2;
-			}
-
-			if(r == 2)
-			{
-				color = 0x00;
-				color2 = 0;
-			}
-
-			if(r == 3)
-			{
-				color = 0x00;
-				color2 = 1;
-			}
-
-			if(r == 4)
-			{
-				color = 0x00;
-				color2 = 2;
-			}
-		}
-
-		int Bcolor = b-2;
-		int Rcolor = r-2;
-		int Gcolor = g-2;
-
-		//blue
-		if(chrome == 1)
-		{
-			color = 0x01;
-
-			if(r > g)
-				color = 0x02;
-
-			if( (r > 0) || (g > 0) )
-				color2 = 1+Bcolor;
-		}
-
-		//magenta
-		if(chrome == 3)
-		{
-			color = 0x03;
-			if(g > 0)
-				color2 = 1+Bcolor;
-
-			if(r >= b)
-			{
-				color = 0x04;
-				if(g > 0)
-					color2 = 1+Rcolor;
-			}
-		}
-
-		//red
-		if(chrome == 2)
-		{
-			color = 0x05;
-
-			if(g > b)
-				color = 0x06;
-
-			if( (b > 0) || (g > 0) )
-				color2 = 1+Rcolor;
-		}
-
-		//yellow
-		if(chrome == 6)
-		{
-			color = 0x07;
-			if(b > 0)
-				color2 = 1+Rcolor;
-
-			if(g >= r)
-			{
-				color = 0x08;
-				if(b > 0)
-					color2 = 1+Gcolor;
-			}
-		}
-
-		//green
-		if(chrome == 4)
-		{
-			color = 0x09;
-
-			if(b > r)
-				color = 0x0A;
-
-			if( (b > 0) || (r > 0) )
-				color2 = 1+Gcolor;
-		}
-
-		//cyan
-		if(chrome == 5)
-		{
-			color = 0x0B;
-			if(r > 0)
-				color2 = 1+Rcolor;
-
-			if(b >= g)
-			{
-				color = 0x0C;
-				if(r > 0)
-					color2 = 1+Gcolor;
-			}
-		}
-
-
-
-		color = color + (color2<<4);
-		//printf("%x\n",color);
+		color = nes_pal(&palette[n],data);
 		fputc(color,file);
 
 		psize ++;
@@ -235,153 +231,3 @@ int nes_write_rom(FILE *file,SDL_Surface *image,unsigned char *palette,int npal,
 
     return size;
 }
-
-/*
-{
-    int i,n;
-    int psize = 0;
-    unsigned char color,color2;
-    int r,g,b,chrome;
-
-    int size = image->w*image->h*image->format->BytesPerPixel;
-    unsigned char *pixel = image->pixels;
-
-    if(mode == 3)
-    {
-        n = 0;
-        for(i = 0;i < size;i += image->format->BytesPerPixel)
-        {
-            palette[n+0] = pixel[i+0];
-            palette[n+1] = pixel[i+1];
-            palette[n+2] = pixel[i+2];
-            n +=3;
-            if(n >= 0x300) break;
-        }
-        ncolor = n/3;
-    }
-
-
-    for(i = 0;i < ncolor;i++)
-    {
-        n = i*3;
-
-        r = palette[n+0];
-        g = palette[n+1];
-        b = palette[n+2];
-        color = 0x0F;
-        color2 = 0;
-
-        chrome = 0;
-		if(b >= 128)
-			chrome |= 1;
-
-		if(r >= 128)
-			chrome |= 2;
-
-		if(g >= 128)
-			chrome |= 4;
-
-		int Bcolor = (b-129)/42;
-		int Rcolor = (r-129)/42;
-		int Gcolor = (g-129)/42;
-		if(Bcolor < 0) Bcolor = 0;
-		if(Rcolor < 0) Rcolor = 0;
-		if(Gcolor < 0) Gcolor = 0;
-
-		//blue
-		if(chrome == 1)
-		{
-			color = 1;
-			color2 = Bcolor;
-
-			if(r >= 64)
-				color = 2;
-		}
-
-		//magenta
-		if(chrome == 3)
-		{
-			color = 3;
-			color2 = Bcolor;
-
-			if(r > b)
-			{
-				color = 4;
-				color2 = Rcolor;
-			}
-
-		}
-
-		//red
-		if(chrome == 2)
-		{
-			color = 5;
-			color2 = Rcolor;
-
-			if(g >= 64)
-				color = 6;
-		}
-
-		//yellow
-		if(chrome == 6)
-		{
-			color = 7;
-			color2 = Rcolor;
-
-			if(g > r)
-			{
-				color = 8;
-				color2 = Gcolor;
-			}
-		}
-
-		//green
-		if(chrome == 4)
-		{
-			color = 9;
-			color2 = Gcolor;
-
-			if(b >= 64)
-				color = 10;
-		}
-
-		//cyan
-		if(chrome == 5)
-		{
-			color = 11;
-			color2 = Gcolor;
-
-			if(b > g)
-			{
-				color = 12;
-				color2 = Bcolor;
-			}
-		}
-
-		if(chrome == 7)
-		{
-			color = 0x00;
-			color2 = (Rcolor+Gcolor+Bcolor)/3;
-		}
-
-		if(color == 0x0F)
-		{
-			color = (r+g+b)/3;
-
-			if(color >= 30)
-				color2 = 2;
-
-			if(color >= 80)
-				color2 = 3;
-
-			color = 0xF;
-		}
-
-		color = color + (color2<<4);
-		fputc(color,file);
-
-        psize += 2;
-    }
-
-    return psize;
-}*/

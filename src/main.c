@@ -60,6 +60,11 @@ int main(int argc, char** argv)
             if(strcmp(argv[i],"-bg")  == 0) option[4] = 2;
             if(strcmp(argv[i],"-spr") == 0) option[4] = 0;
 
+			//Nes option
+            if(strcmp(argv[i],"-customPal")  == 0) option[4] = 2;
+            if(strcmp(argv[i],"-customBin")  == 0) option[4] = 3;
+            if(strcmp(argv[i],"-customMesen")  == 0) option[4] = 4;
+
             ok = 0;
 
             if(strcmp(argv[i],"-loadpalette") == 0)
@@ -224,7 +229,7 @@ void retro_convert(SDL_Surface *image,char *address,char *addresspal,int *option
 
 	file = fopen(str,"wb");
 	if(console == 1)
-		psize = nes_write_pal(file,image,palette,ncolor,mode);
+		psize = nes_write_pal(file,image,palette,ncolor,mode+(option[4]<<4));
 	if(console == 2)
 		psize = sms_write_pal(file,image,palette,ncolor,mode);
 	if(console == 3)

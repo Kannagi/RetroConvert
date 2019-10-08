@@ -105,9 +105,9 @@ int sms_write_pal(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolo
     {
         n = i*3;
 
-        r = ( (palette[n+0])/85);
-        g = ( (palette[n+1])/85);
-        b = ( (palette[n+2])/85);
+        r = ( (palette[n+0])/64);
+        g = ( (palette[n+1])/64);
+        b = ( (palette[n+2])/64);
 
         //printf("%d , %d , %d\n",palette[n+0],palette[n+1],palette[n+2]);
 
