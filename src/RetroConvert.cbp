@@ -12,7 +12,7 @@
 				<Option object_output="obj/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-nes mario.png" />
+				<Option parameters="-sms hero.png" />
 			</Target>
 			<Target title="bin windows">
 				<Option output="bin/RetroConvert" prefix_auto="1" extension_auto="1" />

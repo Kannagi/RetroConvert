@@ -97,6 +97,7 @@ int main(int argc, char** argv)
 		printf("\noption sfc : -2bpp,-4bpp ,-8bpp,-mode7,-map\n");
 		printf("option pce : -bg,-spr\n");
 		printf("option md : -h + arg\n");
+		printf("option nes : -customBin (use Nes palette ,read 'nes_custom.pal' ) , -customPal (use Nes palette ,read 'nes_custom.png' ) , -customMesen (use Nes palette Mesen) \n");
 
         printf("\nExemple :\nRetroConvert -sfc -4bpp myimage.png\n");
         return 0;

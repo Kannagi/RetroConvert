@@ -142,14 +142,21 @@ int nes_write_pal(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolo
 
 	if( (mode&0xF0) == 0x30 )
 	{
+		FILE *filepal = fopen("nes_custom.pal","wb");
+		if(filepal == NULL)
+		{
+			printf("Palette is not valide\n");
+			return 0;
+		}
+
 		for(i = 0;i < 192;i+=3)
 		{
-			data_tmp[i+0] = fgetc(file);
-            data_tmp[i+1] = fgetc(file);
-            data_tmp[i+2] = fgetc(file);
+			data_tmp[i+0] = fgetc(filepal);
+            data_tmp[i+1] = fgetc(filepal);
+            data_tmp[i+2] = fgetc(filepal);
 		}
 		data = data_tmp;
-		fclose(file);
+		fclose(filepal);
 	}
 
 	if( (mode&0xF0) == 0x40 )

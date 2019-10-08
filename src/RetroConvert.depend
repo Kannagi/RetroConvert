@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1570552260 source:/home/kannagi/Documents/Projet/tools/RetroConvert/main.c
+1570568439 source:/home/kannagi/Documents/Projet/tools/RetroConvert/main.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
@@ -15,7 +15,7 @@
 	<SDL/SDL_image.h>
 	"retro.h"
 
-1570552230 source:/home/kannagi/Documents/Projet/tools/RetroConvert/nes.c
+1570568577 source:/home/kannagi/Documents/Projet/tools/RetroConvert/nes.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
