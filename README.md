@@ -1,8 +1,6 @@
 # RetroConvert
 Converter png/bmp/pcx to Nes/SNES/Master System/Mega Drive/PC Engine/NeoGeo
 
-The Neo Geo is not yet implemented
-
 ## Command
 - RetroConvert -sfc myimage.png
 
@@ -22,6 +20,9 @@ The Neo Geo is not yet implemented
 
 ## Option MD
 - -h + arg , arg (0-3) (horizontal sprite (arg+1)*8 pixels)
+
+## Option NeoGeo
+- -ngv (vertical sprite)
 
 ## Option Nes
 - -customMesen (use palette Mesen)
