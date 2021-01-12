@@ -9,11 +9,11 @@
 
 int pce_write_rom(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolor,int type)
 {
-    int casex,casey;
-    int tiles[64];
-    int i,l;
-    int x,y,size = 0;
-    int bin[128];
+	int casex,casey;
+	int tiles[64];
+	int i,l;
+	int x,y,size = 0;
+	int bin[128];
 	int bx,by,bn;
 
 	int nl = 4,ns = 128,casez = 16;
@@ -26,12 +26,12 @@ int pce_write_rom(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolo
 		casez = 8;
 	}
 
-    casex = 0;
-    casey = 0;
+	casex = 0;
+	casey = 0;
 
-    while(1)
-    {
-        for(i = 0;i < 128;i++)
+	while(1)
+	{
+		for(i = 0;i < 128;i++)
 			bin[i] = 0;
 
 
@@ -104,60 +104,60 @@ int pce_write_rom(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolo
 
 		size += ns;
 
-        casex += casez;
-        if(casex+casez >image->w)
-        {
-            casex = 0;
-            casey += casez;
-        }
+		casex += casez;
+		if(casex+casez >image->w)
+		{
+			casex = 0;
+			casey += casez;
+		}
 
-        if(casey+casez >image->h) break;
+		if(casey+casez >image->h) break;
 
-    }
+	}
 
-    return size;
+	return size;
 }
 
 
 int pce_write_pal(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolor,int mode)
 {
-    int i,n;
-    int psize = 0;
-    int color;
-    int pal[4];
+	int i,n;
+	int psize = 0;
+	int color;
+	int pal[4];
 
-    int size = image->w*image->h*image->format->BytesPerPixel;
-    unsigned char *pixel = image->pixels;
+	int size = image->w*image->h*image->format->BytesPerPixel;
+	unsigned char *pixel = image->pixels;
 
-    if(mode == 3)
-    {
-        n = 0;
-        for(i = 0;i < size;i += image->format->BytesPerPixel)
-        {
-            palette[n+0] = pixel[i+0];
-            palette[n+1] = pixel[i+1];
-            palette[n+2] = pixel[i+2];
-            n +=3;
-            if(n > 768) break;
-        }
-        ncolor = n/3;
-    }
+	if(mode == 3)
+	{
+		n = 0;
+		for(i = 0;i < size;i += image->format->BytesPerPixel)
+		{
+			palette[n+0] = pixel[i+0];
+			palette[n+1] = pixel[i+1];
+			palette[n+2] = pixel[i+2];
+			n +=3;
+			if(n > 768) break;
+		}
+		ncolor = n/3;
+	}
 
-    for(i = 0;i < ncolor;i++)
-    {
-        n = i*3;
+	for(i = 0;i < ncolor;i++)
+	{
+		n = i*3;
 
-        pal[0] = palette[n+0]>>5;
-        pal[1] = palette[n+1]>>5;
+		pal[0] = palette[n+0]>>5;
+		pal[1] = palette[n+1]>>5;
 		pal[2] = palette[n+2]>>5;
 
 		color = (pal[1]<<6) + (pal[2]<<3) +pal[0];
 
 		fputc(color&0xFF,file);
-		fputc( (color&0xFF)>>8 ,file);
+		fputc( (color>>8)&0xFF ,file);
 
-        psize += 2;
-    }
+		psize += 2;
+	}
 
-    return psize;
+	return psize;
 }

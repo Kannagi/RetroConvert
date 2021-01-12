@@ -23,11 +23,11 @@ void RGBtoCIELAB(int R,int G,int B,double *CIELAB)
 	var_B = ( (float)B / 255.0 );
 
 	if ( var_R > 0.04045 ) var_R = pow ( ( ( var_R + 0.055 ) / 1.055 ) , 2.4);
-	else                   var_R = var_R / 12.92;
+	else				   var_R = var_R / 12.92;
 	if ( var_G > 0.04045 ) var_G = pow ( ( ( var_G + 0.055 ) / 1.055 ) , 2.4);
-	else                   var_G = var_G / 12.92;
+	else				   var_G = var_G / 12.92;
 	if ( var_B > 0.04045 ) var_B = pow ( ( ( var_B + 0.055 ) / 1.055 ) , 2.4);
-	else                   var_B = var_B / 12.92;
+	else				   var_B = var_B / 12.92;
 
 	var_R = var_R * 100;
 	var_G = var_G * 100;
@@ -45,11 +45,11 @@ void RGBtoCIELAB(int R,int G,int B,double *CIELAB)
 	var_Z = Z / 108.883; // Reference-Z
 
 	if ( var_X > 0.008856 ) var_X = pow ( var_X , ( 1.0/3.0 ) );
-	else                    var_X = ( 7.787 * var_X ) + ( 16.0 / 116.0 );
+	else					var_X = ( 7.787 * var_X ) + ( 16.0 / 116.0 );
 	if ( var_Y > 0.008856 ) var_Y = pow ( var_Y , ( 1.0/3.0 ) );
-	else                    var_Y = ( 7.787 * var_Y ) + ( 16.0 / 116.0 );
+	else					var_Y = ( 7.787 * var_Y ) + ( 16.0 / 116.0 );
 	if ( var_Z > 0.008856 ) var_Z = pow ( var_Z , ( 1.0/3.0 ) );
-	else                    var_Z = ( 7.787 * var_Z ) + ( 16.0 / 116.0 );
+	else					var_Z = ( 7.787 * var_Z ) + ( 16.0 / 116.0 );
 
 	CIELAB[0] = ( 116.0 * var_Y ) - 16.0;
 	CIELAB[1] = 500.0 * ( var_X - var_Y );
@@ -91,30 +91,30 @@ unsigned char nes_pal(unsigned char *palette,unsigned char *data)
 
 int nes_write_pal(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolor,int mode)
 {
-    int i,n;
-    int psize = 0;
-    unsigned char color;
+	int i,n;
+	int psize = 0;
+	unsigned char color;
 
 
-    int size = image->w*image->h*image->format->BytesPerPixel;
-    unsigned char *pixel = image->pixels;
+	int size = image->w*image->h*image->format->BytesPerPixel;
+	unsigned char *pixel = image->pixels;
 
-    if( (mode&0x0F) == 3 )
-    {
-        n = 0;
-        for(i = 0;i < size;i += image->format->BytesPerPixel)
-        {
-            palette[n+0] = pixel[i+0];
-            palette[n+1] = pixel[i+1];
-            palette[n+2] = pixel[i+2];
-            n +=3;
-            if(n >= 0x300) break;
-        }
-        ncolor = n/3;
-    }
+	if( (mode&0x0F) == 3 )
+	{
+		n = 0;
+		for(i = 0;i < size;i += image->format->BytesPerPixel)
+		{
+			palette[n+0] = pixel[i+0];
+			palette[n+1] = pixel[i+1];
+			palette[n+2] = pixel[i+2];
+			n +=3;
+			if(n >= 0x300) break;
+		}
+		ncolor = n/3;
+	}
 
-    unsigned char *data = fceux_pal_data;
-    unsigned char data_tmp[192];
+	unsigned char *data = fceux_pal_data;
+	unsigned char data_tmp[192];
 
 	if( (mode&0xF0) == 0x20 )
 	{
@@ -132,8 +132,8 @@ int nes_write_pal(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolo
 		for(i = 0;i < 192;i+=3)
 		{
 			data_tmp[i+0] = pixel[i+2];
-            data_tmp[i+1] = pixel[i+1];
-            data_tmp[i+2] = pixel[i+0];
+			data_tmp[i+1] = pixel[i+1];
+			data_tmp[i+2] = pixel[i+0];
 		}
 		data = data_tmp;
 		SDL_FreeSurface(copy);
@@ -152,8 +152,8 @@ int nes_write_pal(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolo
 		for(i = 0;i < 192;i+=3)
 		{
 			data_tmp[i+0] = fgetc(filepal);
-            data_tmp[i+1] = fgetc(filepal);
-            data_tmp[i+2] = fgetc(filepal);
+			data_tmp[i+1] = fgetc(filepal);
+			data_tmp[i+2] = fgetc(filepal);
 		}
 		data = data_tmp;
 		fclose(filepal);
@@ -164,13 +164,13 @@ int nes_write_pal(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolo
 		for(i = 0;i < 192;i+=3)
 		{
 			data_tmp[i+0] = mesen_pal_data[i+2];
-            data_tmp[i+1] = mesen_pal_data[i+1];
-            data_tmp[i+2] = mesen_pal_data[i+0];
+			data_tmp[i+1] = mesen_pal_data[i+1];
+			data_tmp[i+2] = mesen_pal_data[i+0];
 		}
 		data = data_tmp;
 	}
 
-    for(i = 0;i < ncolor;i++)
+	for(i = 0;i < ncolor;i++)
 	{
 		n = i*3;
 
@@ -180,24 +180,24 @@ int nes_write_pal(FILE *file,SDL_Surface *image,unsigned char *palette,int ncolo
 		psize ++;
 	}
 
-    return psize;
+	return psize;
 }
 
 int nes_write_rom(FILE *file,SDL_Surface *image,unsigned char *palette,int npal,int type)
 {
-    int blocx,blocy;
-    int tiles[64];
-    int nespixel[8];
-    int i;
-    int x,y,size = 0;
-    unsigned char bin[16];
+	int blocx,blocy;
+	int tiles[64];
+	int nespixel[8];
+	int i;
+	int x,y,size = 0;
+	unsigned char bin[16];
 	unsigned char *pixel = image->pixels;
-    blocx = 0;
-    blocy = 0;
+	blocx = 0;
+	blocy = 0;
 
-    while(1)
-    {
-        bloc_palette(image,blocx,blocy,8,pixel,palette,tiles);
+	while(1)
+	{
+		bloc_palette(image,blocx,blocy,8,pixel,palette,tiles);
 
 
 
@@ -225,16 +225,16 @@ int nes_write_rom(FILE *file,SDL_Surface *image,unsigned char *palette,int npal,
 
 
 		size += 16;
-        blocx += 8;
-        if(blocx+8 >image->w)
-        {
-            blocx = 0;
-            blocy += 8;
-        }
+		blocx += 8;
+		if(blocx+8 >image->w)
+		{
+			blocx = 0;
+			blocy += 8;
+		}
 
-        if(blocy+8 >image->h) break;
-    }
+		if(blocy+8 >image->h) break;
+	}
 
 
-    return size;
+	return size;
 }

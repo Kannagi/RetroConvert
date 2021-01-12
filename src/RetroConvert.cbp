@@ -12,30 +12,39 @@
 				<Option object_output="obj/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-sms hero.png" />
+				<Option parameters="-tilemap  Billy.png" />
+				<Compiler>
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-fexceptions" />
+					<Add option="-O3" />
+					<Add option="-w" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-lm" />
+				</Linker>
 			</Target>
-			<Target title="bin windows">
-				<Option output="bin/RetroConvert" prefix_auto="1" extension_auto="1" />
+			<Target title="bin (Windows)">
+				<Option platforms="Unix;Mac;" />
+				<Option output="bin/RetroConvert" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="bin/" />
 				<Option object_output="obj/" />
 				<Option type="1" />
 				<Option compiler="mingw__compiler" />
 				<Option parameters="-nes mario.png" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-fexceptions" />
+					<Add option="-O3" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 				</Linker>
 			</Target>
 		</Build>
-		<Compiler>
-			<Add option="-Wextra" />
-			<Add option="-Wall" />
-			<Add option="-fexceptions" />
-		</Compiler>
 		<Linker>
-			<Add option="-O3" />
 			<Add option="-s" />
 			<Add library="SDL" />
 			<Add library="SDL_image" />
@@ -65,11 +74,11 @@
 		<Unit filename="snes.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="tilemap.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Extensions>
-			<envvars />
-			<code_completion />
 			<lib_finder disable_auto="1" />
-			<debugger />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
