@@ -1,11 +1,11 @@
 # RetroConvert
-Converter png/bmp/pcx to Nes/SNES/Master System/Mega Drive/PC Engine/NeoGeo
+Converter png/bmp/pcx to Nes/SNES/Master System/Mega Drive/PC Engine/NeoGeo/ Game Boy
 
 ## Command
 - RetroConvert -sfc myimage.png
 
 ## Option target cible
-- -nes , -sms , -pce , -sfc , -md , -ng
+- -nes , -sms , -pce , -sfc , -md , -ng , -gb
 
 ## Option palette
 - -palette (output palette only)
