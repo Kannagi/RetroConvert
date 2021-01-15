@@ -49,6 +49,9 @@
 			<Add library="SDL" />
 			<Add library="SDL_image" />
 		</Linker>
+		<Unit filename="gb.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>

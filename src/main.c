@@ -55,6 +55,8 @@ int main(int argc, char** argv)
 			if(strcmp(argv[i],"-md")  == 0) option[3] = 5;
 			if(strcmp(argv[i],"-ng")  == 0) option[3] = 6;
 
+			if(strcmp(argv[i],"-gb")  == 0) option[3] = 7;
+
 			if(strcmp(argv[i],"-noalpha") == 0) option[1] = 1;
 			if(strcmp(argv[i],"-palette") == 0) option[2] = 1;
 			if(strcmp(argv[i],"-paletteall") == 0) option[2] = 3;
@@ -287,7 +289,6 @@ void retro_convert(SDL_Surface *image,char *address,char *addresspal,int *option
 		mode = 0;
 	}
 
-
 	int i;
 
 	if(option[8] == 1)
@@ -356,6 +357,9 @@ void retro_convert(SDL_Surface *image,char *address,char *addresspal,int *option
 
 		if(console == 6)
 			size = ng_write_rom(file,image,palette,ncolor,type);
+
+		if(console == 7)
+			size = gb_write_rom(file,image,palette,ncolor,option[1]);
 	}
 
 	fclose(file);
@@ -372,7 +376,8 @@ void retro_convert(SDL_Surface *image,char *address,char *addresspal,int *option
 	else
 		sprintf(str,"%s.pal",sstr);
 
-	file = fopen(str,"wb");
+	if(console != 7)
+		file = fopen(str,"wb");
 	if(file == NULL)
 	{
 		printf("Write failed\n");
@@ -390,7 +395,8 @@ void retro_convert(SDL_Surface *image,char *address,char *addresspal,int *option
 		psize = md_write_pal(file,image,palette,ncolor,mode);
 	if(console == 6)
 		psize = ng_write_pal(file,image,palette,ncolor,mode);
-	fclose(file);
+	if(console != 7)
+		fclose(file);
 
 	printf("size sprites : %d bytes\n",size);
 	printf("size palette : %d bytes\n",psize);
